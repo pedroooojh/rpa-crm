@@ -102,6 +102,19 @@ def dar_baixa_na_aula(supabase: Client, turma, disciplina, data_aula):
 # FUNÇÕES DE AUTOMAÇÃO E TELA
 # ==========================================
 
+def esperar_imagem(nome_arquivo, timeout=10, confianca=0.8):
+    """Espera até 'timeout' segundos para a imagem aparecer na tela."""
+    tempo_inicial = time.time()
+    while time.time() - tempo_inicial < timeout:
+        try:
+            if pyautogui.locateOnScreen(nome_arquivo, confidence=confianca):
+                return True
+        except Exception:
+            pass
+        time.sleep(0.5) # Checa a cada meio segundo
+    print(f"   [ERRO TIMEOUT] Imagem '{nome_arquivo}' não apareceu após {timeout}s.")
+    return False
+
 def clicar_imagem(nome_arquivo, dx=0, dy=0, confianca=0.8):
     if os.path.exists(nome_arquivo):
         try:
@@ -196,25 +209,41 @@ def executar_rpa():
         time.sleep(2)
         
         # --- SELECIONAR DISCIPLINA ---
-        clicar_imagem('botao_tres_pontos.png'); time.sleep(3)
-        if clicar_imagem('rotulo_disciplina_popup.png', dx=100):
-            pyautogui.hotkey('ctrl', 'a'); pyautogui.press('backspace')
-            pyperclip.copy(disciplina); pyautogui.hotkey('ctrl', 'v')
-            clicar_imagem('botao_localizar_lupa.png'); time.sleep(2)
-            pyautogui.press('down'); time.sleep(0.5)
-            clicar_imagem('botao_selecionar_verde.png')
+        if clicar_imagem('botao_tres_pontos.png'):
+            print("   -> Botão três pontos clicado, aguardando popup...")
+            
+            # Adicionado confianca=0.7 para lidar melhor com possíveis variações
+            if esperar_imagem('rotulo_disciplina_popup.png', timeout=10, confianca=0.7):
+                if clicar_imagem('rotulo_disciplina_popup.png', dx=100, confianca=0.7):
+                    pyautogui.hotkey('ctrl', 'a'); pyautogui.press('backspace')
+                    pyperclip.copy(disciplina); pyautogui.hotkey('ctrl', 'v')
+                    clicar_imagem('botao_localizar_lupa.png'); time.sleep(2)
+                    pyautogui.press('down'); time.sleep(0.5)
+                    clicar_imagem('botao_selecionar_verde.png')
+            else:
+                print("   [ERRO] O popup de disciplina não abriu a tempo.")
+        else:
+            print("   [ERRO] Não encontrou o botão de três pontos da disciplina.")
         
         time.sleep(2)
         clicar_imagem('botao_selecionar_principal.png')
         
         # --- SELECIONAR MÊS/ANO ---
         time.sleep(2)
-        clicar_imagem('botao_tres_pontos_mesano.png'); time.sleep(3)
-        if clicar_imagem('rotulo_busca_data.png', dx=100):
-            pyautogui.hotkey('ctrl', 'a'); pyautogui.press('backspace'); pyautogui.press('home')
-            pyautogui.write(data_pesquisa.replace("/", ""), interval=0.1)
-            pyautogui.press('enter'); time.sleep(1); pyautogui.press('down')
-            clicar_imagem('botao_selecionar_verde.png')
+        if clicar_imagem('botao_tres_pontos_mesano.png'):
+            print("   -> Botão mês/ano clicado, aguardando popup...")
+            
+            # Adicionado confianca=0.7 para lidar melhor com possíveis variações
+            if esperar_imagem('rotulo_busca_data.png', timeout=10, confianca=0.7):
+                if clicar_imagem('rotulo_busca_data.png', dx=100, confianca=0.7):
+                    pyautogui.hotkey('ctrl', 'a'); pyautogui.press('backspace'); pyautogui.press('home')
+                    pyautogui.write(data_pesquisa.replace("/", ""), interval=0.1)
+                    pyautogui.press('enter'); time.sleep(1); pyautogui.press('down')
+                    clicar_imagem('botao_selecionar_verde.png')
+            else:
+                print("   [ERRO] O popup de data não abriu a tempo.")
+        else:
+            print("   [ERRO] Não encontrou o botão de três pontos de mês/ano.")
 
         time.sleep(2)
         clicar_imagem('botao_selecionar_principal.png')
