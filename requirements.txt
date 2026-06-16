@@ -1,0 +1,13 @@
+# Dependências do RPA CRM
+# Use este arquivo como referência para baixar os .whl
+
+selenium==4.27.1
+requests==2.32.3
+python-dotenv==1.0.1
+webdriver-manager==4.0.2
+
+# Dependências transitivas (baixar também):
+# certifi, charset-normalizer, idna, urllib3
+# attrs, sortedcontainers, outcome, sniffio, exceptiongroup, h11, trio
+# wsproto, trio-websocket, websocket-client, typing-extensions
+# packaging, tqdm
